@@ -44,11 +44,11 @@ public class EmailReportMaker implements ReportMaker {
     }
 
     @Override
-    public boolean isAnyExceedance() {
+    public boolean isNoExceedance() {
         AtomicBoolean isAnyExceedance = new AtomicBoolean(false);
         statuses.forEach(status -> {
-            if (status.isExceedance()) {
-                isAnyExceedance.set(false);
+            if (!status.isExceedance()) {
+                isAnyExceedance.set(true);
             }
         });
         return isAnyExceedance.get();
@@ -62,7 +62,7 @@ public class EmailReportMaker implements ReportMaker {
 
     private String readHostName() {
         try {
-            return InetAddress.getLocalHost().getHostName();
+            return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             return "Couldn't define";
         }

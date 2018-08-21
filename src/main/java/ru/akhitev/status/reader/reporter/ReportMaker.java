@@ -16,5 +16,5 @@ public interface ReportMaker {
      */
     String getBody(EmailReportTemplate type);
 
-    boolean isAnyExceedance();
+    boolean isNoExceedance();
 }

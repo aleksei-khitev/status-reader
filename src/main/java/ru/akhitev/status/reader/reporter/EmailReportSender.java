@@ -3,12 +3,10 @@ package ru.akhitev.status.reader.reporter;
 import com.google.common.base.Splitter;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -24,10 +22,16 @@ public class EmailReportSender implements ReportSender {
     private Environment env;
 
     @Override
-    public void sendMail() {
+    public void sendMailIfNeeded() {
+        EmailReportTemplate emailReportTemplate = defineEmailReportTemplate();
+        if (emailReportTemplate.equals(EmailReportTemplate.ERROR)) {
+            sendEmail(emailReportTemplate);
+        }
+    }
+
+    private void sendEmail(EmailReportTemplate emailReportTemplate) {
         Properties props = prepareSenderProperties();
         final Session mailSession = Session.getInstance(props, null);
-        EmailReportTemplate emailReportTemplate = defineEmailReportTemplate();
         try {
             final Transport transport = mailSession.getTransport();
             final MimeMessage message = new MimeMessage(mailSession);
@@ -61,7 +65,7 @@ public class EmailReportSender implements ReportSender {
     }
 
     private EmailReportTemplate defineEmailReportTemplate() {
-        if (reportMaker.isAnyExceedance()) {
+        if (reportMaker.isNoExceedance()) {
             return EmailReportTemplate.ERROR;
         } else {
             return EmailReportTemplate.OK;

@@ -63,7 +63,7 @@ task generateLaunchers(){
     dependsOn << makeTempDir
     File launcher = new File('distrib/status-reader/launch.sh')
     launcher.createNewFile()
-    launcher.write("#!/bin/sh\njava -jar ${project.name}-all-${version}.jar")
+    launcher.write("#!/bin/sh\n/opt/apps/jdk1.8.0_25/bin/java -jar ${project.name}-all-${version}.jar")
     launcher.setExecutable(true, false)
 }
 

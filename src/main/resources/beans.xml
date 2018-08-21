@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="reportService" class="ru.akhitev.status.reader.reporter.EmailReportService" />
+
+    <bean id="freeDiskSpaceService" class="ru.akhitev.status.reader.messurement.service.FreeDiskSpaceService" />
+
+    <bean id="launcher" class="ru.akhitev.status.reader.Launcher" >
+        <property name="reportService" ref="reportService" />
+        <property name="messureServices">
+            <list value-type="ru.akhitev.status.reader.messurement.service.MessureService">
+                <ref bean="freeDiskSpaceService" />
+            </list>
+        </property>
+    </bean>
+
+</beans>

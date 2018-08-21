@@ -1,6 +1,7 @@
 package ru.akhitev.status.reader.messurement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.akhitev.status.reader.messurement.vo.Status;
 import ru.akhitev.status.reader.reporter.ReportMaker;
 
@@ -9,6 +10,7 @@ import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+@Service
 public class FreeDiskSpaceService implements MessureService {
     private final static  String MESSUREMENT = "Free Disk Space";
     private final static long THRESHOLD_VALUE = 1000L;

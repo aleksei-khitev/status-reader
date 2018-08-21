@@ -16,7 +16,6 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 @Service
-@PropertySource("file:conf/email.properties")
 public class EmailReportSender implements ReportSender {
     @Autowired
     private ReportMaker reportMaker;
@@ -27,19 +26,13 @@ public class EmailReportSender implements ReportSender {
     @Override
     public void sendMail() {
         Properties props = prepareSenderProperties();
-        final Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(
-                        env.getProperty("mail.user"), env.getProperty("mail.password"));
-            }
-        });
+        final Session mailSession = Session.getInstance(props, null);
         EmailReportTemplate emailReportTemplate = defineEmailReportTemplate();
         try {
             final Transport transport = mailSession.getTransport();
             final MimeMessage message = new MimeMessage(mailSession);
             message.setContent(reportMaker.getBody(emailReportTemplate), "text/html;charset=utf-8");
             final Splitter splitter = Splitter.on(",");
-            String recipientsField;
             splitter.split(env.getProperty(emailReportTemplate.recepientListName())).forEach(recepient -> {
                 try {
                     message.addRecipients(Message.RecipientType.TO, recepient);
@@ -47,6 +40,7 @@ public class EmailReportSender implements ReportSender {
                     e.printStackTrace();
                 }
             });
+            message.setSubject("Server Monitoring");
             message.setFrom(new InternetAddress(env.getProperty("mail.user")));
             transport.connect();
             transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));

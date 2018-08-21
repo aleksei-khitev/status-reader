@@ -10,14 +10,17 @@ import java.util.List;
 
 public enum EmailReportTemplate {
     /** Расширенный. */
-    OK ("ok_mail_report.html"),
+    OK ("ok_mail_report.html", "ok_recepients"),
     /** Отчет об ошибке. */
-    ERROR ("problem_mail_report.html");
+    ERROR ("problem_mail_report.html", "problem_recepients");
 
     private String reportHtmlName;
 
-    EmailReportTemplate(String reportHtmlName) {
+    private String recepientListName;
+
+    EmailReportTemplate(String reportHtmlName, String recepientListName) {
         this.reportHtmlName = reportHtmlName;
+        this.recepientListName = recepientListName;
     }
 
     public String template() {
@@ -28,6 +31,10 @@ public enum EmailReportTemplate {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public String recepientListName() {
+        return recepientListName;
     }
 
     /**

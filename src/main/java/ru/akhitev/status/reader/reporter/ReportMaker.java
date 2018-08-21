@@ -2,7 +2,7 @@ package ru.akhitev.status.reader.reporter;
 
 import ru.akhitev.status.reader.messurement.vo.Status;
 
-public interface ReportService {
+public interface ReportMaker {
     /**
      * Добавляет статус в тело отчета.
      * @param status Статус.
@@ -15,4 +15,6 @@ public interface ReportService {
      * @return Тело отчета.
      */
     String getBody(EmailReportTemplate type);
+
+    boolean isAnyExceedance();
 }

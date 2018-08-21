@@ -1,6 +1,8 @@
 package ru.akhitev.status.reader.messurement.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.akhitev.status.reader.messurement.vo.Status;
+import ru.akhitev.status.reader.reporter.ReportMaker;
 
 import java.io.IOException;
 import java.nio.file.FileStore;
@@ -8,26 +10,40 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class FreeDiskSpaceService implements MessureService {
+    private final static  String MESSUREMENT = "Free Disk Space";
+    private final static long THRESHOLD_VALUE = 1000L;
+
+    @Autowired
+    private ReportMaker reportMaker;
+
     @Override
-    public Status prepareValue() {
-        final String messurement = "Free Disk Space";
+    public void prepareValue() {
         Status status;
         try {
-
-            status = new Status(messurement, String.valueOf(freeSpaceInMegaBytes()));
+            long freeSpaceInMegaBytes = freeSpaceInMegaBytes();
+            reportMaker.addStatus(
+                    new Status(MESSUREMENT, convertToString(freeSpaceInMegaBytes), isNormalValue(freeSpaceInMegaBytes)));
         } catch (IOException e) {
             e.printStackTrace();
-            status = new Status(messurement, "error");
+            reportMaker.addStatus(new Status(MESSUREMENT, "error", Boolean.FALSE));
         }
-        return status;
     }
 
     private long freeSpaceInMegaBytes() throws IOException {
-        return freeSpaceInBites() / 1024 / 1024;
+        final long threeOrdersOfNumber = 1024;
+        return freeSpaceInBites() / threeOrdersOfNumber / threeOrdersOfNumber;
     }
 
     private long freeSpaceInBites() throws IOException {
         FileStore store = Files.getFileStore(Paths.get("/"));
         return store.getUsableSpace();
+    }
+
+    private boolean isNormalValue(long freeSpaceInMegaBytes) {
+        return freeSpaceInMegaBytes > THRESHOLD_VALUE;
+    }
+
+    private String convertToString(long freeSpaceInMegaBytes) throws IOException {
+        return String.format("%dMB", freeSpaceInMegaBytes());
     }
 }

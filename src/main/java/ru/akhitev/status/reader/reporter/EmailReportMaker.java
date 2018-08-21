@@ -1,16 +1,25 @@
 package ru.akhitev.status.reader.reporter;
 
 import com.google.common.base.Joiner;
+import org.springframework.stereotype.Service;
 import ru.akhitev.status.reader.messurement.vo.Status;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EmailReportService implements ReportService {
+@Service
+public class EmailReportMaker implements ReportMaker {
+    private static final String REPORT_DATE_PATTERN = "dd.MM.yyyy - HH:mm";
+
     /** Список статусов работы исполнителей. */
     private List<Status> statuses;
 
-    public EmailReportService() {
+    public EmailReportMaker() {
         statuses = new ArrayList<>();
     }
 
@@ -33,11 +42,30 @@ public class EmailReportService implements ReportService {
             return "";
         }
     }
+
+    @Override
+    public boolean isAnyExceedance() {
+        AtomicBoolean isAnyExceedance = new AtomicBoolean(false);
+        statuses.forEach(status -> {
+            if (status.isExceedance()) {
+                isAnyExceedance.set(false);
+            }
+        });
+        return isAnyExceedance.get();
+    }
+
     private String getTime() {
-        return "";
+        final DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern(REPORT_DATE_PATTERN);
+        return LocalDateTime.now().format(formatter);
     }
 
     private String readHostName() {
-        return "";
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "Couldn't define";
+        }
+
     }
 }

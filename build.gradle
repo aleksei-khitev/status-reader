@@ -1,7 +1,7 @@
 group 'ru.akhitev'
-version '1.0-SNAPSHOT'
+version '2.0'
 
-apply plugin: 'java'
+apply plugin: 'war'
 
 sourceCompatibility = 1.8
 
@@ -14,70 +14,9 @@ dependencies {
     compile     group: 'org.springframework',       name: 'spring-core',                version: '4.3.4.RELEASE'
     compile     group: 'org.springframework',       name: 'spring-beans',               version: '4.3.4.RELEASE'
     compile     group: 'org.springframework',       name: 'spring-context',             version: '4.3.4.RELEASE'
+    compile     group: 'org.springframework',       name: 'spring-web',                 version: '4.3.4.RELEASE'
+    compile     group: 'org.springframework',       name: 'spring-webmvc',              version: '4.3.4.RELEASE'
     compile     group: 'javax.mail',                name: 'mail',                       version: '1.4.7'
+    compile     group: 'javax.servlet',             name: 'javax.servlet-api',          version: '3.0.1'
     testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-task makeTempDir(){
-    File versionFile = new File("distrib")
-    versionFile.mkdir()
-    versionFile = new File("distrib/status-reader")
-    versionFile.mkdir()
-    versionFile = new File("distrib/status-reader/conf")
-    versionFile.mkdir()
-}
-
-task fatJar(type: Jar) {
-    dependsOn << makeTempDir
-    manifest {
-        attributes 'Implementation-Title': 'Status Reader',
-                'Implementation-Version': version,
-                'Main-Class': 'ru.akhitev.status.reader.Launcher'
-    }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
-
-task copyConfig(type: Copy){
-    dependsOn << fatJar
-    from 'conf'
-    into 'distrib/status-reader/conf'
-}
-
-task copyTemplates(type: Copy){
-    dependsOn << makeTempDir
-    from 'conf/templates'
-    into 'distrib/status-reader/conf/templates'
-}
-
-task copyJar(type: Copy){
-    dependsOn << makeTempDir
-    from "${buildDir}/libs/${project.name}-all-${version}.jar"
-    into 'distrib/status-reader'
-    println "${buildDir}/libs/${project.name}-all-${version}.jar"
-}
-
-task generateLaunchers(){
-    dependsOn << makeTempDir
-    File launcher = new File('distrib/status-reader/launch.sh')
-    launcher.createNewFile()
-    launcher.write("#!/bin/sh\n/opt/apps/jdk1.8.0_25/bin/java -jar ${project.name}-all-${version}.jar")
-    launcher.setExecutable(true, false)
-}
-
-task makeZip(type: Zip) {
-    dependsOn << copyTemplates
-    dependsOn << copyConfig
-    dependsOn << copyJar
-    dependsOn << generateLaunchers
-    from 'distrib/status-reader'
-    archiveName 'status-reader.zip'
-}
-
-task copyZip(type: Copy){
-    dependsOn << makeZip
-    from "${buildDir}/distributions/status-reader.zip"
-    into 'distrib'
 }
